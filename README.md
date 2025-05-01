@@ -1,4 +1,4 @@
-# E-Commerce CRM
+# Craftivo CRM
 
 A Django-based CRM system for managing handmade goods online store operations.
 
