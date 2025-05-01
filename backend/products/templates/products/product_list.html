@@ -1,0 +1,206 @@
+{% extends 'config/base.html' %}
+
+{% block title %}Products - Craftivo CRM{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex flex-col sm:flex-row sm:justify-between">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl font-bold text-gray-900">Products</h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Manage your product catalog</p>
+        </div>
+        <div>
+            <a href="{% url 'products:product_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus mr-2"></i> Add Product
+            </a>
+        </div>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="px-4 py-3 bg-gray-50 border-t border-b border-gray-200">
+        <form method="GET" action="{% url 'products:product_list' %}">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="md:w-1/3">
+                    <input type="text" name="search" value="{{ search_term }}" placeholder="Search products..." class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                </div>
+                <div class="md:w-1/4">
+                    <select name="category" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"i" %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="md:w-1/4">
+                    <select name="status" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">All Statuses</option>
+                        {% for status_value, status_label in status_choices %}
+                        <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="md:w-1/6">
+                    <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Product List -->
+    {% if products %}
+    <!-- Table for medium and larger screens -->
+    <div class="hidden md:block bg-white overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for product in products %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-md flex items-center justify-center text-gray-500">
+                                {% if product.featured_image %}
+                                <img src="{{ product.featured_image.url }}" alt="{{ product.name }}" class="h-10 w-10 rounded-md object-cover">
+                                {% else %}
+                                <i class="fas fa-box"></i>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ product.name }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ product.sku }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ product.category.name|default:"-" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${{ product.price }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm {% if product.needs_reordering %}text-yellow-600 font-semibold{% elif not product.is_in_stock %}text-red-600 font-semibold{% else %}text-gray-900{% endif %}">
+                            {{ product.stock_quantity }}
+                            {% if product.needs_reordering and product.is_in_stock %}
+                            <span class="ml-1 text-xs text-yellow-600">(Low)</span>
+                            {% elif not product.is_in_stock %}
+                            <span class="ml-1 text-xs text-red-600">(Out)</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if product.status == 'active' %}bg-green-100 text-green-800
+                            {% elif product.status == 'draft' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if product.status == 'active' %}Active
+                            {% elif product.status == 'draft' %}Draft
+                            {% else %}Archived{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'products:product_detail' product.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
+                        <a href="{% url 'products:product_update' product.id %}" class="text-gray-600 hover:text-gray-900 mr-3">Edit</a>
+                        <a href="{% url 'products:product_delete' product.id %}" class="text-red-600 hover:text-red-900">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Cards for small screens -->
+    <div class="md:hidden bg-white">
+        <ul class="divide-y divide-gray-200">
+            {% for product in products %}
+            <li class="px-4 py-4">
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-md flex items-center justify-center text-gray-500">
+                            {% if product.featured_image %}
+                            <img src="{{ product.featured_image.url }}" alt="{{ product.name }}" class="h-10 w-10 rounded-md object-cover">
+                            {% else %}
+                            <i class="fas fa-box"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">{{ product.name }}</p>
+                            <p class="text-xs text-gray-500">SKU: {{ product.sku }}</p>
+                            {% if product.category %}
+                            <p class="text-xs text-gray-500">Category: {{ product.category.name }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if product.status == 'active' %}bg-green-100 text-green-800
+                            {% elif product.status == 'draft' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if product.status == 'active' %}Active
+                            {% elif product.status == 'draft' %}Draft
+                            {% else %}Archived{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-2 flex justify-between">
+                    <div>
+                        <p class="text-sm font-medium">${{ product.price }}</p>
+                        <p class="text-sm {% if product.needs_reordering %}text-yellow-600 font-semibold{% elif not product.is_in_stock %}text-red-600 font-semibold{% else %}text-gray-700{% endif %}">
+                            Stock: {{ product.stock_quantity }}
+                            {% if product.needs_reordering and product.is_in_stock %}
+                            <span class="ml-1 text-xs text-yellow-600">(Low)</span>
+                            {% elif not product.is_in_stock %}
+                            <span class="ml-1 text-xs text-red-600">(Out)</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-3 flex justify-start space-x-4">
+                    <a href="{% url 'products:product_detail' product.id %}" class="text-indigo-600 hover:text-indigo-900 text-sm">
+                        <i class="fas fa-eye mr-1"></i> View
+                    </a>
+                    <a href="{% url 'products:product_update' product.id %}" class="text-gray-600 hover:text-gray-900 text-sm">
+                        <i class="fas fa-edit mr-1"></i> Edit
+                    </a>
+                    <a href="{% url 'products:product_delete' product.id %}" class="text-red-600 hover:text-red-900 text-sm">
+                        <i class="fas fa-trash mr-1"></i> Delete
+                    </a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Include Pagination -->
+    <div class="px-4 py-3">
+        {% include 'include/pagination.html' %}
+    </div>
+    
+    {% else %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No products</h3>
+        <p class="mt-1 text-sm text-gray-500">Get started by creating a new product.</p>
+        <div class="mt-6">
+            <a href="{% url 'products:product_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus mr-2"></i> Add Product
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

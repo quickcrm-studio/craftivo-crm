@@ -1,0 +1,190 @@
+{% extends 'config/base.html' %}
+{% load form_tags %}
+
+{% block title %}{{ title }} - Craftivo CRM{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden mt-8">
+    <div class="px-6 py-4">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">{{ title }}</h2>
+        
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="{% if message.tags == 'error' %}bg-red-50 border-l-4 border-red-500{% else %}bg-green-50 border-l-4 border-green-500{% endif %} p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        {% if message.tags == 'error' %}
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                        {% else %}
+                        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-800{% else %}text-green-800{% endif %}">
+                            {{ message }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Please correct the following errors</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Basic Information Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Basic Information</h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">First Name *</label>
+                        <div class="mt-1">
+                            {{ form.first_name }}
+                        </div>
+                        {% if form.first_name.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Last Name *</label>
+                        <div class="mt-1">
+                            {{ form.last_name }}
+                        </div>
+                        {% if form.last_name.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">Email *</label>
+                        <div class="mt-1">
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700">Phone</label>
+                        <div class="mt-1">
+                            {{ form.phone }}
+                        </div>
+                        {% if form.phone.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Address Information</h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.shipping_address.id_for_label }}" class="block text-sm font-medium text-gray-700">Shipping Address</label>
+                        <div class="mt-1">
+                            {{ form.shipping_address }}
+                        </div>
+                        {% if form.shipping_address.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.shipping_address.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.billing_address.id_for_label }}" class="block text-sm font-medium text-gray-700">Billing Address</label>
+                        <div class="mt-1">
+                            {{ form.billing_address }}
+                        </div>
+                        {% if form.billing_address.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.billing_address.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Information Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Additional Information</h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">Status *</label>
+                        <div class="mt-1">
+                            {{ form.status }}
+                        </div>
+                        {% if form.status.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.preferred_communication.id_for_label }}" class="block text-sm font-medium text-gray-700">Preferred Communication</label>
+                        <div class="mt-1">
+                            {{ form.preferred_communication }}
+                        </div>
+                        {% if form.preferred_communication.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.preferred_communication.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-span-2">
+                        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700">Notes</label>
+                        <div class="mt-1">
+                            {{ form.notes }}
+                        </div>
+                        {% if form.notes.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.notes.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-start">
+                        {{ form.accepts_marketing }}
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.accepts_marketing.id_for_label }}" class="font-medium text-gray-700">Accepts Marketing</label>
+                            <p class="text-gray-500">Allow sending promotional content to this customer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="py-3 text-right">
+                <a href="{% url 'customers:customer_list' %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    {{ submit_text|default:"Save" }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

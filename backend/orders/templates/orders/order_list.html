@@ -1,0 +1,195 @@
+{% extends 'config/base.html' %}
+
+{% block title %}Orders - Craftivo CRM{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex flex-col sm:flex-row sm:justify-between">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl font-bold text-gray-900">Orders</h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Manage customer orders</p>
+        </div>
+        <div>
+            <a href="{% url 'orders:order_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus mr-2"></i> Create Order
+            </a>
+        </div>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="px-4 py-3 bg-gray-50 border-t border-b border-gray-200">
+        <form method="GET" action="{% url 'orders:order_list' %}">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="md:w-1/3">
+                    <input type="text" name="search" value="{{ search_term }}" placeholder="Search orders..." class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-md py-3 pl-4 sm:text-sm border-gray-300 rounded-md">
+                </div>
+                <div class="md:w-1/4">
+                    <select name="status" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-md py-3 pl-4 sm:text-sm border-gray-300 rounded-md">
+                        <option value="">All Statuses</option>
+                        {% for status_value, status_label in status_choices %}
+                        <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="md:w-1/4">
+                    <select name="payment_status" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-md py-3 pl-4 sm:text-sm border-gray-300 rounded-md">
+                        <option value="">All Payment Statuses</option>
+                        {% for status_value, status_label in payment_status_choices %}
+                        <option value="{{ status_value }}" {% if selected_payment_status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="md:w-1/6">
+                    <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Order List -->
+    {% if orders %}
+    <!-- Table for medium and larger screens -->
+    <div class="hidden md:block bg-white overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for order in orders %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ order.order_number }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if order.customer %}
+                        <div class="text-sm text-gray-900">{{ order.customer.get_full_name }}</div>
+                        <div class="text-sm text-gray-500">{{ order.customer.email }}</div>
+                        {% else %}
+                        <div class="text-sm text-gray-900">{{ order.shipping_name }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ order.created_at|date:"M d, Y" }}</div>
+                        <div class="text-sm text-gray-500">{{ order.created_at|time:"H:i" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if order.status == 'delivered' %}bg-green-100 text-green-800
+                            {% elif order.status == 'shipped' %}bg-blue-100 text-blue-800
+                            {% elif order.status == 'processing' %}bg-indigo-100 text-indigo-800
+                            {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                            {% elif order.status == 'refunded' %}bg-purple-100 text-purple-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if order.payment_status == 'paid' %}bg-green-100 text-green-800
+                            {% elif order.payment_status == 'refunded' %}bg-purple-100 text-purple-800
+                            {% elif order.payment_status == 'failed' %}bg-red-100 text-red-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${{ order.total_amount }}</div>
+                        <div class="text-sm text-gray-500">{{ order.item_count }} items</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
+                        <a href="{% url 'orders:order_update' order.id %}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Cards for small screens -->
+    <div class="md:hidden bg-white">
+        <ul class="divide-y divide-gray-200">
+            {% for order in orders %}
+            <li class="px-4 py-4">
+                <a href="{% url 'orders:order_detail' order.id %}" class="block">
+                    <div class="flex justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ order.order_number }}</p>
+                            <p class="text-sm text-gray-500">
+                                {% if order.customer %}
+                                {{ order.customer.get_full_name }}
+                                {% else %}
+                                {{ order.shipping_name }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">${{ order.total_amount }}</p>
+                            <p class="text-sm text-gray-500">{{ order.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <div>
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if order.status == 'delivered' %}bg-green-100 text-green-800
+                                {% elif order.status == 'shipped' %}bg-blue-100 text-blue-800
+                                {% elif order.status == 'processing' %}bg-indigo-100 text-indigo-800
+                                {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                {% elif order.status == 'refunded' %}bg-purple-100 text-purple-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                            <span class="ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if order.payment_status == 'paid' %}bg-green-100 text-green-800
+                                {% elif order.payment_status == 'refunded' %}bg-purple-100 text-purple-800
+                                {% elif order.payment_status == 'failed' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        </div>
+                        <div class="flex items-center">
+                            <a href="{% url 'orders:order_update' order.id %}" class="mr-3 text-indigo-600">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <div class="text-indigo-600">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Include Pagination -->
+    <div class="px-4 py-3">
+        {% include 'include/pagination.html' %}
+    </div>
+    
+    {% else %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No orders</h3>
+        <p class="mt-1 text-sm text-gray-500">No orders have been placed yet.</p>
+        <div class="mt-6">
+            <a href="{% url 'orders:order_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus mr-2"></i> Create Order
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

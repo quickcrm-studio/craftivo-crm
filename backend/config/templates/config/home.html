@@ -1,0 +1,594 @@
+{% extends 'config/base.html' %}
+
+{% block title %}Home - Craftivo CRM{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h1 class="text-3xl font-bold text-gray-900">Welcome to Craftivo CRM</h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Manage your handmade goods business efficiently</p>
+    </div>
+    {% if is_authenticated %}
+    <div class="border-t border-gray-200">
+        <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Total Products</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ total_products }}</dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Total Categories</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ total_categories }}</dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Total Orders</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ total_orders }}</dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Total Customers</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ total_customers }}</dd>
+            </div>
+        </dl>
+    </div>
+    {% else %}
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+        <div class="text-center">
+            <h2 class="text-xl font-semibold text-gray-900">Get Started</h2>
+            <p class="mt-2 text-sm text-gray-500">
+                Log in to access your dashboard and manage your business.
+            </p>
+            <div class="mt-4">
+                <a href="{% url 'users:login' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Login
+                </a>
+                <a href="{% url 'users:signup' %}" class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700">
+                    <i class="fas fa-user-plus mr-2"></i> Sign Up
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if is_authenticated %}
+<div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- Dashboard Summary Cards -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900">{{ total_orders }}</div>
+                            <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                {% if pending_orders > 0 %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{{ pending_orders }} pending</span>
+                                {% endif %}
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <a href="{% url 'orders:order_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Monthly Revenue</dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900">${{ revenue_this_month|floatformat:2 }}</div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <a href="{% url 'orders:order_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View details</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Customers</dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900">{{ total_customers }}</div>
+                            <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                {% if new_customers_this_month > 0 %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{{ new_customers_this_month }} new</span>
+                                {% endif %}
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <a href="{% url 'customers:customer_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Products</dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900">{{ total_products }}</div>
+                            <div class="ml-2 flex items-baseline text-sm font-semibold">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ total_categories }} categories</span>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <a href="{% url 'products:product_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second row - Recent Orders and Inventory Warnings -->
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- Recent Orders -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Orders</h3>
+            <a href="{% url 'orders:order_create' %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus mr-1"></i> New Order
+            </a>
+        </div>
+        <div class="border-t border-gray-200">
+            {% if recent_orders %}
+            <div class="overflow-hidden overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <a href="{% url 'orders:order_detail' order.id %}" class="text-indigo-600 hover:text-indigo-900">
+                                    {{ order.order_number }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {% if order.customer %}
+                                <a href="{% url 'customers:customer_detail' order.customer.id %}" class="text-gray-900 hover:text-indigo-600">
+                                    {{ order.customer.get_full_name }}
+                                </a>
+                                {% else %}
+                                Guest
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ order.created_at|date:"M d, Y" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if order.status == 'pending' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Pending
+                                </span>
+                                {% elif order.status == 'processing' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    Processing
+                                </span>
+                                {% elif order.status == 'shipped' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                    Shipped
+                                </span>
+                                {% elif order.status == 'delivered' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Delivered
+                                </span>
+                                {% elif order.status == 'completed' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Completed
+                                </span>
+                                {% elif order.status == 'cancelled' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Cancelled
+                                </span>
+                                {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    {{ order.status }}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${{ order.total_amount|floatformat:2 }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-6 text-center">
+                <p class="text-sm text-gray-500">No recent orders</p>
+                <a href="{% url 'orders:order_create' %}" class="mt-2 inline-flex items-center text-sm text-indigo-600 hover:text-indigo-900">
+                    <i class="fas fa-plus mr-1"></i> Create your first order
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6">
+            <div class="text-sm">
+                <a href="{% url 'orders:order_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all orders <span aria-hidden="true">&rarr;</span></a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Inventory Warnings -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Inventory Warnings</h3>
+            <a href="{% url 'products:product_list' %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-box mr-1"></i> View All Products
+            </a>
+        </div>
+        <div class="border-t border-gray-200">
+            <ul class="divide-y divide-gray-200">
+                {% if out_of_stock_products %}
+                <li class="px-4 py-4">
+                    <h4 class="text-sm font-medium text-red-800">Out of Stock Items</h4>
+                    <div class="mt-2">
+                        {% for product in out_of_stock_products %}
+                        <div class="flex items-center justify-between py-2">
+                            <div>
+                                <span class="text-sm font-medium text-gray-900">{{ product.name }}</span>
+                                <p class="text-xs text-gray-500">SKU: {{ product.sku }}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Out of stock
+                                </span>
+                                <a href="{% url 'products:product_detail' product.id %}" class="text-xs text-indigo-600 hover:text-indigo-900">View</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </li>
+                {% endif %}
+                
+                {% if low_stock_products %}
+                <li class="px-4 py-4">
+                    <h4 class="text-sm font-medium text-yellow-800">Low Stock Items</h4>
+                    <div class="mt-2">
+                        {% for product in low_stock_products %}
+                        <div class="flex items-center justify-between py-2">
+                            <div>
+                                <span class="text-sm font-medium text-gray-900">{{ product.name }}</span>
+                                <p class="text-xs text-gray-500">SKU: {{ product.sku }}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    {{ product.stock_quantity }} left
+                                </span>
+                                <a href="{% url 'products:product_detail' product.id %}" class="text-xs text-indigo-600 hover:text-indigo-900">View</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </li>
+                {% endif %}
+                
+                {% if not out_of_stock_products and not low_stock_products %}
+                <li class="px-4 py-8 text-center">
+                    <p class="text-sm text-gray-500">No inventory warnings</p>
+                    <div class="mt-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                                <circle cx="4" cy="4" r="3" />
+                            </svg>
+                            All products in stock
+                        </span>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6">
+            <div class="text-sm">
+                <a href="{% url 'products:product_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all products <span aria-hidden="true">&rarr;</span></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional row for System Status and Quick Actions -->
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- System Status -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">System Status</h3>
+            <div class="mt-5 grid grid-cols-1 gap-y-5 sm:grid-cols-3 sm:gap-x-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-database text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">Database</p>
+                        <p class="text-sm text-gray-500">Connected</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-boxes text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">Products</p>
+                        <p class="text-sm text-gray-500">{{ total_products }} items</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">Orders</p>
+                        <p class="text-sm text-gray-500">{{ total_orders }} processed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Quick Actions</h3>
+            <div class="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3">
+                <a href="{% url 'orders:order_create' %}" class="group col-span-1">
+                    <div class="flex flex-col items-center p-4 rounded-lg bg-indigo-50 hover:bg-indigo-100">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-md bg-indigo-500 flex items-center justify-center">
+                            <i class="fas fa-plus text-white"></i>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-indigo-600 group-hover:text-indigo-800">Create Order</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'customers:customer_create' %}" class="group col-span-1">
+                    <div class="flex flex-col items-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-md bg-blue-500 flex items-center justify-center">
+                            <i class="fas fa-user-plus text-white"></i>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-blue-600 group-hover:text-blue-800">Add Customer</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'products:product_create' %}" class="group col-span-1">
+                    <div class="flex flex-col items-center p-4 rounded-lg bg-green-50 hover:bg-green-100">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-md bg-green-500 flex items-center justify-center">
+                            <i class="fas fa-box-open text-white"></i>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-green-600 group-hover:text-green-800">Add Product</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'orders:order_list' %}" class="group col-span-1">
+                    <div class="flex flex-col items-center p-4 rounded-lg bg-purple-50 hover:bg-purple-100">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-md bg-purple-500 flex items-center justify-center">
+                            <i class="fas fa-list text-white"></i>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-purple-600 group-hover:text-purple-800">All Orders</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'customers:customer_list' %}" class="group col-span-1">
+                    <div class="flex flex-col items-center p-4 rounded-lg bg-pink-50 hover:bg-pink-100">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-md bg-pink-500 flex items-center justify-center">
+                            <i class="fas fa-users text-white"></i>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-pink-600 group-hover:text-pink-800">All Customers</p>
+                    </div>
+                </a>
+                
+                {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}" class="group col-span-1">
+                    <div class="flex flex-col items-center p-4 rounded-lg bg-gray-50 hover:bg-gray-100">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-md bg-gray-500 flex items-center justify-center">
+                            <i class="fas fa-cog text-white"></i>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-gray-600 group-hover:text-gray-800">Admin Panel</p>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Features Section -->
+<div class="mt-12 bg-white overflow-hidden shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <h2 class="text-2xl font-bold text-gray-900 text-center mb-8">Powerful Features for Your Handmade Business</h2>
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                    <i class="fas fa-box"></i>
+                </div>
+                <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Inventory Management</h3>
+                <p class="mt-2 text-base text-gray-500">Keep track of your handmade products, materials, and stock levels with real-time updates and alerts.</p>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Order Processing</h3>
+                <p class="mt-2 text-base text-gray-500">Streamline your order fulfillment process from purchase to delivery with automated workflows.</p>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Customer Insights</h3>
+                <p class="mt-2 text-base text-gray-500">Build stronger relationships with your customers by tracking preferences and purchase history.</p>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Sales Analytics</h3>
+                <p class="mt-2 text-base text-gray-500">Gain valuable insights into your business performance with detailed reports and dashboards.</p>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Smart Notifications</h3>
+                <p class="mt-2 text-base text-gray-500">Stay informed with automated alerts for low stock, new orders, and important business events.</p>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Production Planning</h3>
+                <p class="mt-2 text-base text-gray-500">Optimize your crafting schedule and resource allocation to meet customer demand efficiently.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials Section -->
+<div class="mt-12 bg-gray-50 overflow-hidden shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <h2 class="text-2xl font-bold text-gray-900 text-center mb-8">What Our Users Say</h2>
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex items-center mb-4">
+                    <div class="h-10 w-10 rounded-full bg-indigo-200 flex items-center justify-center">
+                        <span class="text-indigo-600 font-semibold">SC</span>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-lg font-medium text-gray-900">Sarah C.</h4>
+                        <p class="text-sm text-gray-500">Jewelry Artisan</p>
+                    </div>
+                </div>
+                <p class="text-gray-600">"This CRM has transformed how I manage my handmade jewelry business. I can track orders, inventory, and customer preferences all in one place!"</p>
+                <div class="mt-3 flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex items-center mb-4">
+                    <div class="h-10 w-10 rounded-full bg-green-200 flex items-center justify-center">
+                        <span class="text-green-600 font-semibold">MK</span>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-lg font-medium text-gray-900">Michael K.</h4>
+                        <p class="text-sm text-gray-500">Woodworking Shop</p>
+                    </div>
+                </div>
+                <p class="text-gray-600">"The production planning features help me schedule my woodworking projects efficiently. My delivery times have improved dramatically!"</p>
+                <div class="mt-3 flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex items-center mb-4">
+                    <div class="h-10 w-10 rounded-full bg-pink-200 flex items-center justify-center">
+                        <span class="text-pink-600 font-semibold">AL</span>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-lg font-medium text-gray-900">Amy L.</h4>
+                        <p class="text-sm text-gray-500">Candle Maker</p>
+                    </div>
+                </div>
+                <p class="text-gray-600">"The analytics dashboard gives me clear insights into which candle scents are selling best, helping me make better inventory decisions."</p>
+                <div class="mt-3 flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action Section -->
+<div class="mt-12 bg-indigo-700 overflow-hidden shadow-xl rounded-lg">
+    <div class="px-4 py-12 sm:px-6 text-center">
+        <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            <span class="block">Ready to grow your handmade business?</span>
+        </h2>
+        <p class="mt-4 text-lg leading-6 text-indigo-100">
+            Join thousands of artisans who use our platform to streamline their operations and focus on their craft.
+        </p>
+        <div class="mt-8 flex justify-center">
+            <div class="inline-flex rounded-md shadow">
+                <a href="{% url 'users:signup' %}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50">
+                    Get started for free
+                </a>
+            </div>
+            <div class="ml-3 inline-flex">
+                <a href="#" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                    Learn more
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

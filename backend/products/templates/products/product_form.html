@@ -1,0 +1,237 @@
+{% extends 'config/base.html' %}
+
+{% block title %}{{ title }} - Craftivo CRM{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{% if product %}Update product details{% else %}Enter product details{% endif %}</p>
+        </div>
+        <div>
+            <a href="{% url 'products:product_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-chevron-left mr-2"></i> Back to Products
+            </a>
+        </div>
+    </div>
+    
+    <div class="border-t border-gray-200">
+        <form method="post" class="divide-y divide-gray-200">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4 m-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">There were errors with your submission</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Basic Info -->
+            <div class="px-4 py-6 sm:p-6 bg-white">
+                <div class="mb-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Basic Information</h3>
+                    <p class="mt-1 text-sm text-gray-500">Product identification and classification details.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">Product Name <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.name.errors }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.sku.id_for_label }}" class="block text-sm font-medium text-gray-700">SKU <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            {{ form.sku }}
+                            {% if form.sku.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.sku.errors }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-6">
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">Description <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.description.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Write a few sentences about the product.</p>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700">Category</label>
+                        <div class="mt-1">
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.category.errors }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">Status <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.status.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Set to 'Draft' while preparing, 'Active' when ready to sell.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pricing -->
+            <div class="px-4 py-6 sm:p-6 bg-gray-50">
+                <div class="mb-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Pricing</h3>
+                    <p class="mt-1 text-sm text-gray-500">Set the product's price and cost information.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.price.id_for_label }}" class="block text-sm font-medium text-gray-700">Sale Price <span class="text-red-500">*</span></label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.price }}
+                            {% if form.price.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.price.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">The selling price of the product.</p>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.cost.id_for_label }}" class="block text-sm font-medium text-gray-700">Cost <span class="text-red-500">*</span></label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.cost }}
+                            {% if form.cost.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.cost.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">The cost to produce this product.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Inventory -->
+            <div class="px-4 py-6 sm:p-6 bg-white">
+                <div class="mb-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Inventory</h3>
+                    <p class="mt-1 text-sm text-gray-500">Manage inventory levels and reorder thresholds.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.stock_quantity.id_for_label }}" class="block text-sm font-medium text-gray-700">Stock Quantity <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            {{ form.stock_quantity }}
+                            {% if form.stock_quantity.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.stock_quantity.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Current number of items in stock.</p>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.reorder_threshold.id_for_label }}" class="block text-sm font-medium text-gray-700">Reorder Threshold <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            {{ form.reorder_threshold }}
+                            {% if form.reorder_threshold.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.reorder_threshold.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">When stock falls below this level, system will alert to reorder.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Physical Attributes -->
+            <div class="px-4 py-6 sm:p-6 bg-gray-50">
+                <div class="mb-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Physical Attributes (Optional)</h3>
+                    <p class="mt-1 text-sm text-gray-500">Product dimensions and weight information.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.weight.id_for_label }}" class="block text-sm font-medium text-gray-700">Weight (g)</label>
+                        <div class="mt-1">
+                            {{ form.weight }}
+                            {% if form.weight.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.weight.errors }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.length.id_for_label }}" class="block text-sm font-medium text-gray-700">Length (cm)</label>
+                        <div class="mt-1">
+                            {{ form.length }}
+                            {% if form.length.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.length.errors }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.width.id_for_label }}" class="block text-sm font-medium text-gray-700">Width (cm)</label>
+                        <div class="mt-1">
+                            {{ form.width }}
+                            {% if form.width.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.width.errors }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.height.id_for_label }}" class="block text-sm font-medium text-gray-700">Height (cm)</label>
+                        <div class="mt-1">
+                            {{ form.height }}
+                            {% if form.height.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.height.errors }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="px-4 py-6 sm:p-6 bg-white flex justify-end space-x-3">
+                <a href="{% url 'products:product_list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

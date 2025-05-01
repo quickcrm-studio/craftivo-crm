@@ -1,0 +1,198 @@
+{% extends 'config/base.html' %}
+
+{% block title %}{{ product.name }} - Craftivo CRM{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div>
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-12 w-12 bg-gray-100 rounded-md flex items-center justify-center text-gray-500">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-2xl font-bold text-gray-900">{{ product.name }}</h1>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Product details and inventory</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'products:product_update' product.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-edit mr-2"></i> Edit
+            </a>
+            <a href="{% url 'products:product_list' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-chevron-left mr-2"></i> Back to List
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stock Level Indicator -->
+    <div class="border-t border-gray-200 px-4 py-4 sm:px-6 {% if not product.is_in_stock %}bg-red-50{% elif product.needs_reordering %}bg-yellow-50{% else %}bg-green-50{% endif %}">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                {% if not product.is_in_stock %}
+                <i class="fas fa-exclamation-circle text-red-500"></i>
+                {% elif product.needs_reordering %}
+                <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                {% else %}
+                <i class="fas fa-check-circle text-green-500"></i>
+                {% endif %}
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium {% if not product.is_in_stock %}text-red-800{% elif product.needs_reordering %}text-yellow-800{% else %}text-green-800{% endif %}">
+                    {% if not product.is_in_stock %}
+                    Out of stock! This product needs to be reordered.
+                    {% elif product.needs_reordering %}
+                    Stock is low! Only {{ product.stock_quantity }} units remaining.
+                    {% else %}
+                    In stock ({{ product.stock_quantity }} units available)
+                    {% endif %}
+                </p>
+            </div>
+            <div class="ml-auto">
+                <form method="post" action="#" class="flex items-center space-x-2">
+                    {% csrf_token %}
+                    <label for="quantity" class="sr-only">Adjust Stock</label>
+                    <input type="number" id="quantity" name="quantity" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-20 sm:text-sm border-gray-300 rounded-md" placeholder="Qty">
+                    <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Update Stock</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="border-t border-gray-200">
+        <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Product Name</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.name }}</dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">SKU</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.sku }}</dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Category</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.category.name|default:"-" }}</dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        {% if product.status == 'active' %}bg-green-100 text-green-800
+                        {% elif product.status == 'draft' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if product.status == 'active' %}Active
+                        {% elif product.status == 'draft' %}Draft
+                        {% else %}Archived{% endif %}
+                    </span>
+                </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Description</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.description|linebreaksbr }}</dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Pricing</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <div class="flex space-x-8">
+                        <div>
+                            <p class="font-medium">Sale Price</p>
+                            <p class="text-xl font-bold">${{ product.price }}</p>
+                        </div>
+                        <div>
+                            <p class="font-medium">Cost</p>
+                            <p class="text-xl">${{ product.cost }}</p>
+                        </div>
+                        <div>
+                            <p class="font-medium">Margin</p>
+                            <p class="text-xl text-green-600">
+                                {% with margin=product.price|floatformat:2|slugify|stringformat:"f"|add:"-"|add:product.cost|floatformat:2|slugify|stringformat:"f" %}
+                                ${{ margin }}
+                                {% endwith %}
+                            </p>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Inventory</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <div class="flex space-x-8">
+                        <div>
+                            <p class="font-medium">Current Stock</p>
+                            <p class="text-xl font-bold">{{ product.stock_quantity }}</p>
+                        </div>
+                        <div>
+                            <p class="font-medium">Reorder Threshold</p>
+                            <p class="text-xl">{{ product.reorder_threshold }}</p>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+            {% if product.weight or product.length or product.width or product.height %}
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Physical Attributes</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <div class="grid grid-cols-2 gap-4">
+                        {% if product.weight %}
+                        <div>
+                            <p class="font-medium">Weight</p>
+                            <p>{{ product.weight }} g</p>
+                        </div>
+                        {% endif %}
+                        {% if product.length %}
+                        <div>
+                            <p class="font-medium">Length</p>
+                            <p>{{ product.length }} cm</p>
+                        </div>
+                        {% endif %}
+                        {% if product.width %}
+                        <div>
+                            <p class="font-medium">Width</p>
+                            <p>{{ product.width }} cm</p>
+                        </div>
+                        {% endif %}
+                        {% if product.height %}
+                        <div>
+                            <p class="font-medium">Height</p>
+                            <p>{{ product.height }} cm</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </dd>
+            </div>
+            {% endif %}
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Dates</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <p>Created: <span class="font-medium">{{ product.created_at|date:"F j, Y" }}</span></p>
+                    <p class="mt-1">Last updated: <span class="font-medium">{{ product.updated_at|date:"F j, Y" }}</span></p>
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="mt-6 flex space-x-3 justify-end">
+    <a href="{% url 'products:product_delete' product.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+        <i class="fas fa-trash mr-2"></i> Delete Product
+    </a>
+</div>
+
+<!-- Orders Section (Placeholder) -->
+<div class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h2 class="text-lg font-medium text-gray-900">Order History</h2>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Recent orders containing this product</p>
+    </div>
+    <div class="border-t border-gray-200">
+        <div class="py-10 px-6 text-center text-gray-500">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <p class="mt-2">No orders yet</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

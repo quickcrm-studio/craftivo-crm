@@ -1,0 +1,98 @@
+{% extends 'config/base.html' %}
+
+{% block title %}{{ title }} - Craftivo CRM{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{% if category %}Update category details{% else %}Enter category details{% endif %}</p>
+        </div>
+        <div>
+            <a href="{% url 'products:category_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-chevron-left mr-2"></i> Back to Categories
+            </a>
+        </div>
+    </div>
+    
+    <div class="border-t border-gray-200">
+        <form method="post" class="divide-y divide-gray-200">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4 m-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">There were errors with your submission</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Category Info -->
+            <div class="px-4 py-6 sm:p-6 bg-white">
+                <div class="mb-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Category Information</h3>
+                    <p class="mt-1 text-sm text-gray-500">Set up the category details for organizing products.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-4">
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">Category Name <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.name.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">A descriptive name for this category.</p>
+                    </div>
+                    
+                    <div class="sm:col-span-4">
+                        <label for="{{ form.parent.id_for_label }}" class="block text-sm font-medium text-gray-700">Parent Category</label>
+                        <div class="mt-1">
+                            {{ form.parent }}
+                            {% if form.parent.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.parent.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Leave empty for a top-level category. Select a parent to create a subcategory.</p>
+                    </div>
+                    
+                    <div class="sm:col-span-6">
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">Description</label>
+                        <div class="mt-1">
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.description.errors }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">A brief description of what types of products belong in this category.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="px-4 py-6 sm:p-6 bg-gray-50 flex justify-end space-x-3">
+                <a href="{% url 'products:category_list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

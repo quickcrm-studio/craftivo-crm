@@ -1,0 +1,1089 @@
+{% extends 'config/base.html' %}
+{% load static %}
+
+{% block title %}{% if edit_mode %}Edit Order #{{ order.order_number }}{% else %}Create New Order{% endif %} - Craftivo CRM{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden mt-8">
+    <div class="px-6 py-4">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">
+            {% if edit_mode %}Edit Order #{{ order.order_number }}{% else %}Create New Order{% endif %}
+        </h2>
+        
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="{% if message.tags == 'error' %}bg-red-50 border-l-4 border-red-500{% else %}bg-green-50 border-l-4 border-green-500{% endif %} p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        {% if message.tags == 'error' %}
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                        {% else %}
+                        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-800{% else %}text-green-800{% endif %}">
+                            {{ message }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Please correct the following errors</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <ul class="list-disc pl-5 space-y-1">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <form method="POST" id="order-form" class="space-y-6">
+            {% csrf_token %}
+            {{ form.customer }}
+            
+            <!-- Customer Information Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Customer Information</h3>
+                
+                <!-- Customer Search -->
+                <div class="mb-4">
+                    <label for="id_customer_search" class="block text-sm font-medium text-gray-700">Search Existing Customer</label>
+                    <div class="mt-1 relative">
+                        <input type="text" name="customer_search" id="id_customer_search" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Search by name or email..." autocomplete="off">
+                        <div id="customer-search-results" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                            <!-- Search results will be populated here via JavaScript -->
+                        </div>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Search for an existing customer or create a new one below</p>
+                </div>
+                
+                <!-- Selected Customer Info (hidden initially) -->
+                <div id="selected-customer-info" class="mb-4 p-3 bg-gray-100 rounded-lg hidden">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-medium" id="selected-customer-name">Customer Name</h4>
+                        <button type="button" id="clear-customer-btn" class="text-xs text-red-600 hover:text-red-800">Clear Selection</button>
+                    </div>
+                    <p class="text-sm text-gray-600" id="selected-customer-email"></p>
+                    <p class="text-sm text-gray-600" id="selected-customer-phone"></p>
+                </div>
+                
+                <!-- New Customer Form -->
+                <div id="new-customer-form" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.customer_first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.customer_first_name.label }}</label>
+                        <div class="mt-1">
+                            {{ form.customer_first_name }}
+                        </div>
+                        {% if form.customer_first_name.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.customer_first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.customer_last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.customer_last_name.label }}</label>
+                        <div class="mt-1">
+                            {{ form.customer_last_name }}
+                        </div>
+                        {% if form.customer_last_name.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.customer_last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.customer_email.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.customer_email.label }}</label>
+                        <div class="mt-1">
+                            {{ form.customer_email }}
+                        </div>
+                        {% if form.customer_email.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.customer_email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.customer_phone.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.customer_phone.label }}</label>
+                        <div class="mt-1">
+                            {{ form.customer_phone }}
+                        </div>
+                        {% if form.customer_phone.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.customer_phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="sm:col-span-2">
+                        <div class="flex items-start">
+                            {{ form.customer_marketing }}
+                            <div class="ml-3 text-sm">
+                                <label for="{{ form.customer_marketing.id_for_label }}" class="font-medium text-gray-700">{{ form.customer_marketing.label }}</label>
+                                <p class="text-gray-500">Allow sending promotional content to this customer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Items Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md mt-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Order Items</h3>
+
+                <div class="items-formset">
+                    <!-- Display management form explicitly -->
+                    <div class="items-formset-management" style="display: none;">
+                        {{ items_formset.management_form }}
+                    </div>
+
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variation</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="items-tbody">
+                            {% for form in items_formset.forms %}
+                            <tr class="item-form {% if not forloop.last or form.instance.pk %}existing-item{% endif %}">
+                                <td class="px-6 py-4">
+                                    {% if form.instance.pk %}{{ form.id }}{% endif %}
+                                    <div class="mb-2">
+                                        {{ form.product }}
+                                    </div>
+                                    <div class="hidden">
+                                        {{ form.product_name }}
+                                        {{ form.sku }}
+                                    </div>
+                                    {% if form.product.errors %}
+                                    <p class="mt-2 text-xs text-red-600">{{ form.product.errors.0 }}</p>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ form.product_variation }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ form.price }}
+                                    {% if form.price.errors %}
+                                    <p class="mt-2 text-xs text-red-600">{{ form.price.errors.0 }}</p>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ form.quantity }}
+                                    {% if form.quantity.errors %}
+                                    <p class="mt-2 text-xs text-red-600">{{ form.quantity.errors.0 }}</p>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ form.line_total }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    {% if form.instance.pk or not forloop.last %}
+                                    <button type="button" class="text-red-600 hover:text-red-900 delete-item-btn">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                    {% endif %}
+                                    <div class="hidden">{{ form.DELETE }}</div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="mt-4">
+                        <button type="button" id="add-item-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-plus mr-2"></i> Add Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Information Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md mt-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Shipping Information</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.shipping_name.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_name.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_name }}
+                        </div>
+                        {% if form.shipping_name.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.shipping_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.shipping_phone.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_phone.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_phone }}
+                        </div>
+                        {% if form.shipping_phone.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.shipping_phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="sm:col-span-2">
+                        <label for="{{ form.shipping_address.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_address.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_address }}
+                        </div>
+                        {% if form.shipping_address.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.shipping_address.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.shipping_city.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_city.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_city }}
+                        </div>
+                        {% if form.shipping_city.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.shipping_city.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.shipping_state.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_state.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_state }}
+                        </div>
+                        {% if form.shipping_state.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.shipping_state.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.shipping_postal_code.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_postal_code.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_postal_code }}
+                        </div>
+                        {% if form.shipping_postal_code.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.shipping_postal_code.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.shipping_country.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_country.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_country }}
+                        </div>
+                        {% if form.shipping_country.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.shipping_country.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Billing Information Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md mt-6">
+                <fieldset>
+                    <legend class="text-lg font-medium text-gray-900">Billing Information</legend>
+                    
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 mt-4">
+                        <div>
+                            <label for="{{ form.billing_name.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.billing_name.label }}</label>
+                            <div class="mt-1">
+                                {{ form.billing_name }}
+                            </div>
+                            {% if form.billing_name.errors %}
+                            <p class="mt-2 text-xs text-red-600">{{ form.billing_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <label for="{{ form.billing_address.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.billing_address.label }}</label>
+                            <div class="mt-1">
+                                {{ form.billing_address }}
+                            </div>
+                            {% if form.billing_address.errors %}
+                            <p class="mt-2 text-xs text-red-600">{{ form.billing_address.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.billing_city.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.billing_city.label }}</label>
+                            <div class="mt-1">
+                                {{ form.billing_city }}
+                            </div>
+                            {% if form.billing_city.errors %}
+                            <p class="mt-2 text-xs text-red-600">{{ form.billing_city.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.billing_state.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.billing_state.label }}</label>
+                            <div class="mt-1">
+                                {{ form.billing_state }}
+                            </div>
+                            {% if form.billing_state.errors %}
+                            <p class="mt-2 text-xs text-red-600">{{ form.billing_state.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.billing_postal_code.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.billing_postal_code.label }}</label>
+                            <div class="mt-1">
+                                {{ form.billing_postal_code }}
+                            </div>
+                            {% if form.billing_postal_code.errors %}
+                            <p class="mt-2 text-xs text-red-600">{{ form.billing_postal_code.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.billing_country.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.billing_country.label }}</label>
+                            <div class="mt-1">
+                                {{ form.billing_country }}
+                            </div>
+                            {% if form.billing_country.errors %}
+                            <p class="mt-2 text-xs text-red-600">{{ form.billing_country.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            
+            <!-- Payment Information -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md mt-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Payment Information</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.payment_status.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.payment_status.label }}</label>
+                        <div class="mt-1">
+                            {{ form.payment_status }}
+                        </div>
+                        {% if form.payment_status.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.payment_status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.payment_method.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.payment_method.label }}</label>
+                        <div class="mt-1">
+                            {{ form.payment_method }}
+                        </div>
+                        {% if form.payment_method.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.payment_method.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.payment_reference.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.payment_reference.label }}</label>
+                        <div class="mt-1">
+                            {{ form.payment_reference }}
+                        </div>
+                        {% if form.payment_reference.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.payment_reference.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Totals Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md mt-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Order Totals</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.sub_total.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.sub_total.label }}</label>
+                        <div class="mt-1">
+                            {{ form.sub_total }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.shipping_amount.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_amount.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_amount }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.tax_amount.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.tax_amount.label }}</label>
+                        <div class="mt-1">
+                            {{ form.tax_amount }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.discount_amount.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.discount_amount.label }}</label>
+                        <div class="mt-1">
+                            {{ form.discount_amount }}
+                        </div>
+                    </div>
+                    
+                    <div class="sm:col-span-2">
+                        <label for="{{ form.total_amount.id_for_label }}" class="block text-sm font-medium text-gray-700 font-bold">{{ form.total_amount.label }}</label>
+                        <div class="mt-1">
+                            {{ form.total_amount }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notes Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md mt-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Notes</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.customer_notes.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.customer_notes.label }}</label>
+                        <div class="mt-1">
+                            {{ form.customer_notes }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.staff_notes.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.staff_notes.label }}</label>
+                        <div class="mt-1">
+                            {{ form.staff_notes }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Tracking Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md mt-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Shipping Tracking</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.shipping_carrier.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.shipping_carrier.label }}</label>
+                        <div class="mt-1">
+                            {{ form.shipping_carrier }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.tracking_number.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.tracking_number.label }}</label>
+                        <div class="mt-1">
+                            {{ form.tracking_number }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Status Section -->
+            <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-md mt-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Order Status</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.status.label }}</label>
+                        <div class="mt-1">
+                            {{ form.status }}
+                        </div>
+                        {% if form.status.errors %}
+                        <p class="mt-2 text-xs text-red-600">{{ form.status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="py-3 text-right">
+                <a href="{% if edit_mode %}{% url 'orders:order_detail' order.pk %}{% else %}{% url 'orders:order_list' %}{% endif %}" 
+                   class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    {% if edit_mode %}Update Order{% else %}Create Order{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Customer search and selection handling
+        const customerSearchInput = document.getElementById('id_customer_search');
+        const customerIdInput = document.getElementById('id_customer');
+        const searchResultsContainer = document.getElementById('customer-search-results');
+        const selectedCustomerInfo = document.getElementById('selected-customer-info');
+        const selectedCustomerName = document.getElementById('selected-customer-name');
+        const selectedCustomerEmail = document.getElementById('selected-customer-email');
+        const selectedCustomerPhone = document.getElementById('selected-customer-phone');
+        const clearCustomerBtn = document.getElementById('clear-customer-btn');
+        const newCustomerForm = document.getElementById('new-customer-form');
+        
+        // New customer form fields
+        const firstNameInput = document.getElementById('id_customer_first_name');
+        const lastNameInput = document.getElementById('id_customer_last_name');
+        const emailInput = document.getElementById('id_customer_email');
+        const phoneInput = document.getElementById('id_customer_phone');
+        
+        // Shipping and billing address fields (for auto-population)
+        const shippingNameInput = document.getElementById('id_shipping_name');
+        const shippingAddressInput = document.getElementById('id_shipping_address');
+        const shippingCityInput = document.getElementById('id_shipping_city');
+        const shippingStateInput = document.getElementById('id_shipping_state');
+        const shippingPostalInput = document.getElementById('id_shipping_postal_code');
+        const shippingPhoneInput = document.getElementById('id_shipping_phone');
+        
+        // Customer search functionality
+        let searchTimeout;
+        
+        if (customerSearchInput) {
+            customerSearchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+                
+                if (query.length < 2) {
+                    searchResultsContainer.innerHTML = '';
+                    searchResultsContainer.classList.add('hidden');
+                    return;
+                }
+                
+                searchTimeout = setTimeout(function() {
+                    searchResultsContainer.innerHTML = '<div class="p-2 text-center">Searching...</div>';
+                    searchResultsContainer.classList.remove('hidden');
+                    
+                    // Fetch data from the API
+                    fetch(`/customers/api/search/?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.results.length === 0) {
+                                searchResultsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">No customers found</div>';
+                                return;
+                            }
+                            
+                            let resultsHtml = '';
+                            data.results.forEach(function(customer) {
+                                resultsHtml += `
+                                    <div class="customer-result cursor-pointer px-4 py-2 hover:bg-gray-100" 
+                                         data-id="${customer.id}" 
+                                         data-name="${customer.name}"
+                                         data-email="${customer.email}"
+                                         data-phone="${customer.phone}"
+                                         data-shipping-address="${customer.shipping_address || ''}"
+                                         data-billing-address="${customer.billing_address || ''}">
+                                        <div class="font-medium">${customer.name}</div>
+                                        <div class="text-sm text-gray-600">${customer.email}</div>
+                                        <div class="text-xs text-gray-500">${customer.status}</div>
+                                    </div>
+                                `;
+                            });
+                            
+                            searchResultsContainer.innerHTML = resultsHtml;
+                            
+                            // Add click handlers to results
+                            document.querySelectorAll('.customer-result').forEach(function(element) {
+                                element.addEventListener('click', function() {
+                                    selectCustomer({
+                                        id: this.dataset.id,
+                                        name: this.dataset.name,
+                                        email: this.dataset.email,
+                                        phone: this.dataset.phone,
+                                        shipping_address: this.dataset.shippingAddress,
+                                        billing_address: this.dataset.billingAddress
+                                    });
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching customers:', error);
+                            searchResultsContainer.innerHTML = '<div class="p-2 text-center text-red-500">Error searching customers</div>';
+                        });
+                }, 300);
+            });
+        }
+        
+        // Handle clicking outside the search results
+        document.addEventListener('click', function(event) {
+            if (searchResultsContainer && !searchResultsContainer.contains(event.target) && event.target !== customerSearchInput) {
+                searchResultsContainer.classList.add('hidden');
+            }
+        });
+        
+        // Function to select a customer
+        function selectCustomer(customer) {
+            // Set the hidden customer ID
+            customerIdInput.value = customer.id;
+            
+            // Update the selected customer info
+            selectedCustomerName.textContent = customer.name;
+            selectedCustomerEmail.textContent = customer.email;
+            selectedCustomerPhone.textContent = customer.phone;
+            
+            // Show the selected customer info and hide search results
+            selectedCustomerInfo.classList.remove('hidden');
+            searchResultsContainer.classList.add('hidden');
+            
+            // Clear search box and new customer form
+            customerSearchInput.value = '';
+            clearNewCustomerForm();
+            
+            // Auto-populate shipping info if empty
+            if (!shippingNameInput.value) {
+                shippingNameInput.value = customer.name;
+            }
+            if (!shippingPhoneInput.value) {
+                shippingPhoneInput.value = customer.phone;
+            }
+            if (!shippingAddressInput.value && customer.shipping_address) {
+                shippingAddressInput.value = customer.shipping_address;
+                
+                // Try to parse the address components
+                if (customer.shipping_address.includes(',')) {
+                    const parts = customer.shipping_address.split(',');
+                    if (parts.length > 1 && !shippingCityInput.value) {
+                        shippingCityInput.value = parts[1].trim();
+                    }
+                    if (parts.length > 2) {
+                        const stateZip = parts[2].trim().split(' ', 2);
+                        if (stateZip.length > 0 && !shippingStateInput.value) {
+                            shippingStateInput.value = stateZip[0].trim();
+                        }
+                        if (stateZip.length > 1 && !shippingPostalInput.value) {
+                            shippingPostalInput.value = stateZip[1].trim();
+                        }
+                    }
+                }
+            }
+            
+            // Hide the new customer form
+            newCustomerForm.classList.add('opacity-50');
+            
+            // Disable new customer form fields
+            toggleNewCustomerFormFields(true);
+        }
+        
+        // Clear customer selection
+        if (clearCustomerBtn) {
+            clearCustomerBtn.addEventListener('click', function() {
+                customerIdInput.value = '';
+                selectedCustomerInfo.classList.add('hidden');
+                
+                // Enable the new customer form
+                newCustomerForm.classList.remove('opacity-50');
+                toggleNewCustomerFormFields(false);
+            });
+        }
+        
+        // Toggle new customer form fields
+        function toggleNewCustomerFormFields(disabled) {
+            if (firstNameInput) firstNameInput.disabled = disabled;
+            if (lastNameInput) lastNameInput.disabled = disabled;
+            if (emailInput) emailInput.disabled = disabled;
+            if (phoneInput) phoneInput.disabled = disabled;
+            const marketingCheckbox = document.getElementById('id_customer_marketing');
+            if (marketingCheckbox) marketingCheckbox.disabled = disabled;
+        }
+        
+        // Clear new customer form
+        function clearNewCustomerForm() {
+            if (firstNameInput) firstNameInput.value = '';
+            if (lastNameInput) lastNameInput.value = '';
+            if (emailInput) emailInput.value = '';
+            if (phoneInput) phoneInput.value = '';
+        }
+        
+        // Auto-populate shipping name when customer name changes
+        function updateShippingName() {
+            if (!customerIdInput.value && firstNameInput && lastNameInput && firstNameInput.value && lastNameInput.value) {
+                shippingNameInput.value = `${firstNameInput.value} ${lastNameInput.value}`;
+            }
+        }
+        
+        if (firstNameInput) firstNameInput.addEventListener('input', updateShippingName);
+        if (lastNameInput) lastNameInput.addEventListener('input', updateShippingName);
+        
+        // Auto-populate shipping phone when customer phone changes
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function() {
+                if (!customerIdInput.value && !shippingPhoneInput.value) {
+                    shippingPhoneInput.value = phoneInput.value;
+                }
+            });
+        }
+        
+        // Initialize form state for editing
+        if (customerIdInput && customerIdInput.value) {
+            // If we're editing an order with a customer, simulate selected customer
+            selectedCustomerInfo.classList.remove('hidden');
+            newCustomerForm.classList.add('opacity-50');
+            toggleNewCustomerFormFields(true);
+        }
+        
+        // Existing item formset and total calculation code
+        const formset = document.querySelector('.items-formset');
+        const addButton = document.getElementById('add-item-btn');
+        const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+        const formRegex = RegExp(`items-(\\d+)-`,'g');
+        
+        // Calculate order totals
+        function calculateTotals() {
+            let subtotal = 0;
+            
+            // Sum all line totals
+            document.querySelectorAll('[id$="-line_total"]').forEach(function(input) {
+                const value = parseFloat(input.value) || 0;
+                subtotal += value;
+            });
+            
+            // Set subtotal
+            document.getElementById('id_sub_total').value = subtotal.toFixed(2);
+            
+            // Calculate total
+            const shipping = parseFloat(document.getElementById('id_shipping_amount').value) || 0;
+            const tax = parseFloat(document.getElementById('id_tax_amount').value) || 0;
+            const discount = parseFloat(document.getElementById('id_discount_amount').value) || 0;
+            
+            const total = subtotal + shipping + tax - discount;
+            document.getElementById('id_total_amount').value = total.toFixed(2);
+        }
+        
+        // Calculate line total for an item row
+        function calculateLineTotal(row) {
+            const priceInput = row.querySelector('[id$="-price"]');
+            const quantityInput = row.querySelector('[id$="-quantity"]');
+            const lineTotalInput = row.querySelector('[id$="-line_total"]');
+            
+            if (priceInput && quantityInput && lineTotalInput) {
+                const price = parseFloat(priceInput.value) || 0;
+                const quantity = parseInt(quantityInput.value) || 0;
+                const lineTotal = price * quantity;
+                
+                lineTotalInput.value = lineTotal.toFixed(2);
+                
+                calculateTotals();
+            }
+        }
+        
+        // Delete button handler for item rows
+        function setupDeleteButton(deleteBtn) {
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    const row = this.closest('.item-form');
+                    const deleteCheck = row.querySelector('[id$="-DELETE"]');
+                    
+                    if (deleteCheck) {
+                        // Mark for deletion
+                        deleteCheck.checked = true;
+                        // Hide the row
+                        row.style.display = 'none';
+                    } else {
+                        // For new forms that don't have a DELETE checkbox
+                        row.remove();
+                    }
+                    
+                    calculateTotals();
+                });
+            }
+        }
+        
+        // Function to set up item form event handlers
+        function setupItemFormHandlers(itemForm) {
+            console.log('Setting up handlers for item form', itemForm);
+            
+            // Product selection change handler
+            const productSelect = itemForm.querySelector('select[name*="product"]');
+            const productNameInput = itemForm.querySelector('input[name*="product_name"]');
+            const skuInput = itemForm.querySelector('input[name*="sku"]');
+            const priceInput = itemForm.querySelector('input[name*="price"]');
+            const quantityInput = itemForm.querySelector('input[name*="quantity"]');
+            const deleteBtn = itemForm.querySelector('.delete-item-btn');
+            
+            if (productSelect) {
+                console.log('Found product select', productSelect.id);
+                productSelect.addEventListener('change', function() {
+                    const productId = this.value;
+                    console.log('Product selected:', productId);
+                    
+                    // Reset fields if no product selected
+                    if (!productId) {
+                        if (productNameInput) productNameInput.value = '';
+                        if (skuInput) skuInput.value = '';
+                        if (priceInput) priceInput.value = '0.00';
+                        calculateLineTotal(itemForm);
+                        return;
+                    }
+                    
+                    // Find the selected product from our data
+                    const selectedProduct = this.options[this.selectedIndex];
+                    
+                    // Set product name
+                    if (productNameInput) {
+                        productNameInput.value = selectedProduct.text;
+                        console.log('Set product name to:', selectedProduct.text);
+                    }
+                    
+                    // Fetch product details via AJAX
+                    console.log('Fetching product details...');
+
+                    // Mock API response for development/testing
+                    const mockProductResponse = {
+                        id: productId,
+                        name: selectedProduct.text,
+                        price: '9.99',
+                        sku: 'SKU-' + productId
+                    };
+                    console.log('Using mock product data:', mockProductResponse);
+
+                    if (priceInput) {
+                        priceInput.value = mockProductResponse.price;
+                        console.log('Set price to:', priceInput.value);
+                    }
+                    if (skuInput) skuInput.value = mockProductResponse.sku;
+                    calculateLineTotal(itemForm);
+                });
+            }
+            
+            // Quantity and price change handlers
+            if (priceInput) {
+                priceInput.addEventListener('change', function() {
+                    calculateLineTotal(itemForm);
+                });
+                priceInput.addEventListener('input', function() {
+                    calculateLineTotal(itemForm);
+                });
+            }
+            
+            if (quantityInput) {
+                quantityInput.addEventListener('change', function() {
+                    calculateLineTotal(itemForm);
+                });
+                quantityInput.addEventListener('input', function() {
+                    calculateLineTotal(itemForm);
+                });
+            }
+            
+            // Setup delete button
+            setupDeleteButton(deleteBtn);
+        }
+        
+        // Set up event handlers for initial form rows
+        document.querySelectorAll('.item-form').forEach(function(form) {
+            setupItemFormHandlers(form);
+        });
+        
+        // Set up event handlers for total calculations
+        const shippingAmountInput = document.getElementById('id_shipping_amount');
+        const taxAmountInput = document.getElementById('id_tax_amount');
+        const discountAmountInput = document.getElementById('id_discount_amount');
+        
+        if (shippingAmountInput) shippingAmountInput.addEventListener('change', calculateTotals);
+        if (taxAmountInput) taxAmountInput.addEventListener('change', calculateTotals);
+        if (discountAmountInput) discountAmountInput.addEventListener('change', calculateTotals);
+        
+        // Initial calculation
+        calculateTotals();
+        
+        // Copy shipping to billing
+        const copyShippingBtn = document.createElement('button');
+        copyShippingBtn.type = 'button';
+        copyShippingBtn.textContent = 'Copy from Shipping';
+        copyShippingBtn.className = 'mt-2 ml-2 text-sm text-indigo-600 hover:text-indigo-900';
+        
+        const billingLegend = document.querySelector('legend');
+        if (billingLegend) {
+            billingLegend.appendChild(copyShippingBtn);
+            
+            copyShippingBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const billingNameInput = document.getElementById('id_billing_name');
+                const billingAddressInput = document.getElementById('id_billing_address');
+                const billingCityInput = document.getElementById('id_billing_city');
+                const billingStateInput = document.getElementById('id_billing_state');
+                const billingPostalCodeInput = document.getElementById('id_billing_postal_code');
+                const billingCountryInput = document.getElementById('id_billing_country');
+                
+                if (billingNameInput && shippingNameInput) 
+                    billingNameInput.value = shippingNameInput.value;
+                    
+                if (billingAddressInput && shippingAddressInput)
+                    billingAddressInput.value = shippingAddressInput.value;
+                    
+                if (billingCityInput && shippingCityInput)
+                    billingCityInput.value = shippingCityInput.value;
+                    
+                if (billingStateInput && shippingStateInput)
+                    billingStateInput.value = shippingStateInput.value;
+                    
+                if (billingPostalCodeInput && shippingPostalInput)
+                    billingPostalCodeInput.value = shippingPostalInput.value;
+                    
+                if (billingCountryInput && document.getElementById('id_shipping_country'))
+                    billingCountryInput.value = document.getElementById('id_shipping_country').value;
+            });
+        }
+
+        // Add item button click handler
+        if (addButton) {
+            addButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Add item button clicked');
+                
+                // Get the form count
+                const totalForms = document.querySelector('[name="items-TOTAL_FORMS"]');
+                if (!totalForms) {
+                    console.error("TOTAL_FORMS not found");
+                    return;
+                }
+                
+                // Get the new form index
+                const formCount = parseInt(totalForms.value);
+                console.log('Current form count:', formCount);
+                
+                // Get all existing rows
+                const rows = document.querySelectorAll('#items-tbody tr.item-form');
+                if (rows.length === 0) {
+                    console.error("No item rows found");
+                    return;
+                }
+                
+                // Clone the first row
+                const newRow = rows[0].cloneNode(true);
+                
+                // Update all form element IDs and names
+                newRow.querySelectorAll('input, select').forEach(input => {
+                    const originalName = input.name;
+                    const originalId = input.id;
+                    
+                    if (input.name) {
+                        // Update name attribute - replace items-0- with items-X-
+                        input.name = input.name.replace(/items-\d+-/, `items-${formCount}-`);
+                    }
+                    
+                    if (input.id) {
+                        // Update id attribute
+                        input.id = input.id.replace(/items-\d+-/, `items-${formCount}-`);
+                    }
+                    
+                    console.log(`Updated element: ${originalName} → ${input.name}, ${originalId} → ${input.id}`);
+                    
+                    // Clear values
+                    if (input.type === 'number') {
+                        input.value = input.name && input.name.includes('quantity') ? '1' : '0.00';
+                    } else if (input.type === 'select-one') {
+                        // Reset select to first option
+                        if (input.options.length > 0) {
+                            input.selectedIndex = 0;
+                        }
+                    } else if (input.type !== 'hidden') {
+                        input.value = '';
+                    }
+                    
+                    // For checkboxes, uncheck them
+                    if (input.type === 'checkbox') {
+                        input.checked = false;
+                    }
+                });
+                
+                // Add the new row to the table
+                document.getElementById('items-tbody').appendChild(newRow);
+                
+                // Update total forms count
+                totalForms.value = formCount + 1;
+                console.log('Updated form count to:', totalForms.value);
+                
+                // Set up event handlers for the new form
+                setupItemFormHandlers(newRow);
+            });
+        }
+    });
+</script>
+
+<style>
+    /* Hide Django's help text in formsets */
+    .helptext {
+        display: none;
+    }
+    
+    /* Fix form control styling */
+    input, select, textarea {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        border: 1px solid #d1d5db;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Properly size checkbox inputs */
+    input[type="checkbox"] {
+        width: auto;
+        margin-right: 0.5rem;
+    }
+    
+    /* Fix delete checkbox display */
+    input[type="checkbox"][id$="-DELETE"] {
+        display: none;
+    }
+    
+    /* Ensure consistent table layouts */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    /* Ensure proper spacing */
+    .mb-4 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Add some responsive styling for small screens */
+    @media (max-width: 640px) {
+        table th, table td {
+            padding: 0.5rem 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        th:nth-child(2), td:nth-child(2),  /* Hide variation column on mobile */
+        th:nth-child(5), td:nth-child(5) { /* Hide total column on mobile */
+            display: none;
+        }
+    }
+</style>
+
+<!-- Empty form template for cloning -->
+<template id="empty-form-template">
+    <tr class="item-form">
+        <td class="px-6 py-4">
+            {{ items_formset.empty_form.id }}
+            <div class="mb-2">
+                {{ items_formset.empty_form.product }}
+            </div>
+            <div class="hidden">
+                {{ items_formset.empty_form.product_name }}
+                {{ items_formset.empty_form.sku }}
+            </div>
+        </td>
+        <td class="px-6 py-4">
+            {{ items_formset.empty_form.product_variation }}
+        </td>
+        <td class="px-6 py-4">
+            {{ items_formset.empty_form.price }}
+        </td>
+        <td class="px-6 py-4">
+            {{ items_formset.empty_form.quantity }}
+        </td>
+        <td class="px-6 py-4">
+            {{ items_formset.empty_form.line_total }}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button type="button" class="text-red-600 hover:text-red-900 delete-item-btn">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+            <div class="hidden">{{ items_formset.empty_form.DELETE }}</div>
+        </td>
+    </tr>
+</template>
+{% endblock %} 
