@@ -1,0 +1,64 @@
+{% extends "config/base.html" %}
+
+{% block title %}API Documentation{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Craftivo CRM API</h1>
+            <p class="lead">{{ description }}</p>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    API Versioning
+                </div>
+                <div class="card-body">
+                    <p>The API uses <strong>{{ versioning_scheme }}</strong> to maintain backward compatibility as the API evolves.</p>
+                    <p>Current version: <span class="badge bg-primary">{{ current_version }}</span></p>
+                    <p>Available versions: 
+                        {% for version in available_versions %}
+                            <span class="badge bg-secondary">{{ version }}</span>
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+            
+            {% for version, info in version_paths.items %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    Version {{ version }} Endpoints
+                </div>
+                <div class="card-body">
+                    <p>URL Format: <code>{{ info.url_format }}</code></p>
+                    <h5>Available Endpoints:</h5>
+                    <ul class="list-group">
+                        {% for endpoint in info.endpoints %}
+                            <li class="list-group-item">
+                                <code>{{ endpoint }}</code>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    Documentation
+                </div>
+                <div class="card-body">
+                    <p>{{ docs.description }}</p>
+                    <ul class="list-group">
+                        {% for endpoint in docs.endpoints %}
+                            <li class="list-group-item">
+                                <code>{{ endpoint }}</code>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

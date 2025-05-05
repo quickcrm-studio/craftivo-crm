@@ -10,6 +10,8 @@ from orders.serializers import OrderSerializer
 class CustomerViewSet(viewsets.ModelViewSet):
     """
     API endpoint for customers that allows customers to be viewed, created, edited, and deleted.
+    
+    This viewset supports versioning through the URL path (e.g., /api/v1/customers/).
     """
     queryset = Customer.objects.all().order_by('last_name', 'first_name')
     permission_classes = [permissions.IsAuthenticated]
@@ -19,6 +21,16 @@ class CustomerViewSet(viewsets.ModelViewSet):
     ordering_fields = ['first_name', 'last_name', 'email', 'date_joined', 'last_order_date']
     
     def get_serializer_class(self):
+        # Check API version
+        api_version = self.request.version if hasattr(self.request, 'version') else 'v1'
+        
+        # For now we only have v1, but this structure allows for future versions
+        if api_version == 'v1':
+            if self.action == 'retrieve':
+                return CustomerDetailSerializer
+            return CustomerSerializer
+            
+        # Default to v1 serializer if version not recognized
         if self.action == 'retrieve':
             return CustomerDetailSerializer
         return CustomerSerializer
