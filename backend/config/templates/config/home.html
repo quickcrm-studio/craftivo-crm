@@ -77,7 +77,7 @@
         </div>
         <div class="bg-gray-50 px-5 py-3">
             <div class="text-sm">
-                <a href="{% url 'orders:order_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
+                <a href="{% url 'orders:list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
             </div>
         </div>
     </div>
@@ -102,7 +102,7 @@
         </div>
         <div class="bg-gray-50 px-5 py-3">
             <div class="text-sm">
-                <a href="{% url 'orders:order_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View details</a>
+                <a href="{% url 'orders:list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View details</a>
             </div>
         </div>
     </div>
@@ -132,7 +132,7 @@
         </div>
         <div class="bg-gray-50 px-5 py-3">
             <div class="text-sm">
-                <a href="{% url 'customers:customer_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
+                <a href="{% url 'customers:list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
             </div>
         </div>
     </div>
@@ -160,7 +160,7 @@
         </div>
         <div class="bg-gray-50 px-5 py-3">
             <div class="text-sm">
-                <a href="{% url 'products:product_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
+                <a href="{% url 'products:list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all</a>
             </div>
         </div>
     </div>
@@ -172,7 +172,7 @@
     <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
             <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Orders</h3>
-            <a href="{% url 'orders:order_create' %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <a href="{% url 'orders:create' %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <i class="fas fa-plus mr-1"></i> New Order
             </a>
         </div>
@@ -193,13 +193,13 @@
                         {% for order in recent_orders %}
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <a href="{% url 'orders:order_detail' order.id %}" class="text-indigo-600 hover:text-indigo-900">
+                                <a href="{% url 'orders:detail' order.id %}" class="text-indigo-600 hover:text-indigo-900">
                                     {{ order.order_number }}
                                 </a>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {% if order.customer %}
-                                <a href="{% url 'customers:customer_detail' order.customer.id %}" class="text-gray-900 hover:text-indigo-600">
+                                <a href="{% url 'customers:detail' order.customer.id %}" class="text-gray-900 hover:text-indigo-600">
                                     {{ order.customer.get_full_name }}
                                 </a>
                                 {% else %}
@@ -251,7 +251,7 @@
             {% else %}
             <div class="p-6 text-center">
                 <p class="text-sm text-gray-500">No recent orders</p>
-                <a href="{% url 'orders:order_create' %}" class="mt-2 inline-flex items-center text-sm text-indigo-600 hover:text-indigo-900">
+                <a href="{% url 'orders:create' %}" class="mt-2 inline-flex items-center text-sm text-indigo-600 hover:text-indigo-900">
                     <i class="fas fa-plus mr-1"></i> Create your first order
                 </a>
             </div>
@@ -259,7 +259,7 @@
         </div>
         <div class="bg-gray-50 px-4 py-3 sm:px-6">
             <div class="text-sm">
-                <a href="{% url 'orders:order_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all orders <span aria-hidden="true">&rarr;</span></a>
+                <a href="{% url 'orders:list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all orders <span aria-hidden="true">&rarr;</span></a>
             </div>
         </div>
     </div>
@@ -268,7 +268,7 @@
     <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
             <h3 class="text-lg leading-6 font-medium text-gray-900">Inventory Warnings</h3>
-            <a href="{% url 'products:product_list' %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <a href="{% url 'products:list' %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <i class="fas fa-box mr-1"></i> View All Products
             </a>
         </div>
@@ -288,7 +288,7 @@
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                     Out of stock
                                 </span>
-                                <a href="{% url 'products:product_detail' product.id %}" class="text-xs text-indigo-600 hover:text-indigo-900">View</a>
+                                <a href="{% url 'products:detail' product.id %}" class="text-xs text-indigo-600 hover:text-indigo-900">View</a>
                             </div>
                         </div>
                         {% endfor %}
@@ -310,7 +310,7 @@
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                     {{ product.stock_quantity }} left
                                 </span>
-                                <a href="{% url 'products:product_detail' product.id %}" class="text-xs text-indigo-600 hover:text-indigo-900">View</a>
+                                <a href="{% url 'products:detail' product.id %}" class="text-xs text-indigo-600 hover:text-indigo-900">View</a>
                             </div>
                         </div>
                         {% endfor %}
@@ -335,7 +335,7 @@
         </div>
         <div class="bg-gray-50 px-4 py-3 sm:px-6">
             <div class="text-sm">
-                <a href="{% url 'products:product_list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all products <span aria-hidden="true">&rarr;</span></a>
+                <a href="{% url 'products:list' %}" class="font-medium text-indigo-600 hover:text-indigo-500">View all products <span aria-hidden="true">&rarr;</span></a>
             </div>
         </div>
     </div>
@@ -390,7 +390,7 @@
         <div class="px-4 py-5 sm:px-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900">Quick Actions</h3>
             <div class="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3">
-                <a href="{% url 'orders:order_create' %}" class="group col-span-1">
+                <a href="{% url 'orders:create' %}" class="group col-span-1">
                     <div class="flex flex-col items-center p-4 rounded-lg bg-indigo-50 hover:bg-indigo-100">
                         <div class="flex-shrink-0 h-10 w-10 rounded-md bg-indigo-500 flex items-center justify-center">
                             <i class="fas fa-plus text-white"></i>
@@ -399,7 +399,7 @@
                     </div>
                 </a>
                 
-                <a href="{% url 'customers:customer_create' %}" class="group col-span-1">
+                <a href="{% url 'customers:create' %}" class="group col-span-1">
                     <div class="flex flex-col items-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100">
                         <div class="flex-shrink-0 h-10 w-10 rounded-md bg-blue-500 flex items-center justify-center">
                             <i class="fas fa-user-plus text-white"></i>
@@ -408,7 +408,7 @@
                     </div>
                 </a>
                 
-                <a href="{% url 'products:product_create' %}" class="group col-span-1">
+                <a href="{% url 'products:create' %}" class="group col-span-1">
                     <div class="flex flex-col items-center p-4 rounded-lg bg-green-50 hover:bg-green-100">
                         <div class="flex-shrink-0 h-10 w-10 rounded-md bg-green-500 flex items-center justify-center">
                             <i class="fas fa-box-open text-white"></i>
@@ -417,7 +417,7 @@
                     </div>
                 </a>
                 
-                <a href="{% url 'orders:order_list' %}" class="group col-span-1">
+                <a href="{% url 'orders:list' %}" class="group col-span-1">
                     <div class="flex flex-col items-center p-4 rounded-lg bg-purple-50 hover:bg-purple-100">
                         <div class="flex-shrink-0 h-10 w-10 rounded-md bg-purple-500 flex items-center justify-center">
                             <i class="fas fa-list text-white"></i>
@@ -426,7 +426,7 @@
                     </div>
                 </a>
                 
-                <a href="{% url 'customers:customer_list' %}" class="group col-span-1">
+                <a href="{% url 'customers:list' %}" class="group col-span-1">
                     <div class="flex flex-col items-center p-4 rounded-lg bg-pink-50 hover:bg-pink-100">
                         <div class="flex-shrink-0 h-10 w-10 rounded-md bg-pink-500 flex items-center justify-center">
                             <i class="fas fa-users text-white"></i>

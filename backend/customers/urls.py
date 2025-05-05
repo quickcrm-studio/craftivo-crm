@@ -10,12 +10,14 @@ router.register(r'api', views.CustomerViewSet)
 
 urlpatterns = [
     # API endpoints
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
     path('api/search/', views.search_customers, name='search_customers'),
     
     # Web UI endpoints
-    path('list/', views.customer_list, name='customer_list'),
-    path('detail/<int:pk>/', views.customer_detail, name='customer_detail'),
-    path('create/', views.customer_create, name='customer_create'),
-    path('edit/<int:pk>/', views.customer_edit, name='customer_edit'),
+    path('', views.customer_list, name='list'),  # Default list view at the root
+    path('list/', views.customer_list, name='list'),
+    path('detail/<int:pk>/', views.customer_detail, name='detail'),
+    path('create/', views.customer_create, name='create'),
+    path('edit/<int:pk>/', views.customer_edit, name='edit'),
+    path('delete/<int:pk>/', views.customer_delete, name='delete'),
 ] 

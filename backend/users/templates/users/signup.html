@@ -42,7 +42,7 @@
             <div>
                 <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Username</label>
                 <div class="mt-1">
-                    {{ form.username|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                    {{ form.username }}
                 </div>
                 {% if form.username.help_text %}
                 <p class="mt-2 text-xs text-gray-500">{{ form.username.help_text }}</p>
@@ -52,7 +52,7 @@
             <div>
                 <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">Email Address</label>
                 <div class="mt-1">
-                    {{ form.email|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                    {{ form.email }}
                 </div>
                 {% if form.email.help_text %}
                 <p class="mt-2 text-xs text-gray-500">{{ form.email.help_text }}</p>
@@ -63,14 +63,14 @@
                 <div>
                     <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">First Name</label>
                     <div class="mt-1">
-                        {{ form.first_name|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                        {{ form.first_name }}
                     </div>
                 </div>
                 
                 <div>
                     <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Last Name</label>
                     <div class="mt-1">
-                        {{ form.last_name|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                        {{ form.last_name }}
                     </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@
             <div>
                 <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700">Password</label>
                 <div class="mt-1">
-                    {{ form.password1|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                    {{ form.password1 }}
                 </div>
                 {% if form.password1.help_text %}
                 <p class="mt-2 text-xs text-gray-500">{{ form.password1.help_text }}</p>
@@ -88,7 +88,7 @@
             <div>
                 <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700">Confirm Password</label>
                 <div class="mt-1">
-                    {{ form.password2|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                    {{ form.password2 }}
                 </div>
                 {% if form.password2.help_text %}
                 <p class="mt-2 text-xs text-gray-500">{{ form.password2.help_text }}</p>
@@ -98,7 +98,7 @@
             <div>
                 <label for="{{ form.role.id_for_label }}" class="block text-sm font-medium text-gray-700">Role</label>
                 <div class="mt-1">
-                    {{ form.role|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                    {{ form.role }}
                 </div>
                 {% if form.role.help_text %}
                 <p class="mt-2 text-xs text-gray-500">{{ form.role.help_text }}</p>

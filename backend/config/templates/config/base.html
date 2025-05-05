@@ -1,13 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Craftivo CRM{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Custom form styling for consistent input fields */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        input[type="tel"],
+        input[type="search"],
+        input[type="url"],
+        textarea,
+        select {
+            border-width: 2px !important;
+            padding: 0.6rem 0.75rem !important;
+            padding-left: 1rem !important;
+            width: 100% !important;
+            border-radius: 0.375rem !important;
+            line-height: 1.5 !important;
+            border-color: #d1d5db !important;
+            box-sizing: border-box !important;
+            height: auto !important;
+        }
+        
+        /* Focus state */
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+        }
+        
+        /* Keep checkboxes and radio buttons at their normal size */
+        input[type="checkbox"],
+        input[type="radio"] {
+            width: auto !important;
+            padding: 0 !important;
+            height: auto !important;
+            vertical-align: middle !important;
+            margin-right: 0.5rem !important;
+        }
+        
+        /* Adjust label spacing */
+        label {
+            margin-bottom: 0.375rem !important;
+            display: inline-block !important;
+        }
+        
+        /* Fix any overriding tailwind classes */
+        .form-input,
+        .shadow-sm,
+        .border-gray-300 {
+            border-width: 2px !important;
+            padding-left: 1rem !important;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 flex flex-col min-h-screen">
     <nav class="bg-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
@@ -20,13 +76,13 @@
                             Home
                         </a>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'customers:customer_list' %}" class="{% if '/customers/' in request.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="{% url 'customers:list' %}" class="{% if '/customers/' in request.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Customers
                         </a>
-                        <a href="{% url 'orders:order_list' %}" class="{% if '/orders/' in request.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="{% url 'orders:list' %}" class="{% if '/orders/' in request.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Orders
                         </a>
-                        <a href="{% url 'products:product_list' %}" class="{% if '/products/list/' in request.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="{% url 'products:list' %}" class="{% if '/products/list/' in request.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Products
                         </a>
                         <a href="{% url 'products:category_list' %}" class="{% if '/products/categories/' in request.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
@@ -84,13 +140,13 @@
                     Home
                 </a>
                 {% if user.is_authenticated %}
-                <a href="{% url 'customers:customer_list' %}" class="{% if '/customers/' in request.path %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                <a href="{% url 'customers:list' %}" class="{% if '/customers/' in request.path %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                     Customers
                 </a>
-                <a href="{% url 'orders:order_list' %}" class="{% if '/orders/' in request.path %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                <a href="{% url 'orders:list' %}" class="{% if '/orders/' in request.path %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                     Orders
                 </a>
-                <a href="{% url 'products:product_list' %}" class="{% if '/products/list/' in request.path %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                <a href="{% url 'products:list' %}" class="{% if '/products/list/' in request.path %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                     Products
                 </a>
                 <a href="{% url 'products:category_list' %}" class="{% if '/products/categories/' in request.path %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
@@ -138,7 +194,7 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex-grow">
         {% if messages %}
         <div class="mb-4">
             {% for message in messages %}
@@ -169,7 +225,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-white shadow mt-8">
+    <footer class="bg-white shadow mt-auto">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <p class="text-center text-gray-500 text-sm">
                 &copy; {% now "Y" %} Craftivo CRM. All rights reserved.

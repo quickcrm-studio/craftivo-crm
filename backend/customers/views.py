@@ -111,20 +111,19 @@ def customer_detail(request, pk):
 @login_required
 def customer_create(request):
     """
-    Create a new customer
+    Create a new customer.
     """
     if request.method == 'POST':
         form = CustomerForm(request.POST)
         if form.is_valid():
             customer = form.save()
-            messages.success(request, f"Customer '{customer.get_full_name()}' created successfully.")
-            return redirect('customers:customer_detail', pk=customer.pk)
+            messages.success(request, f'Customer "{customer.get_full_name()}" was created successfully.')
+            return redirect('customers:detail', pk=customer.pk)
     else:
         form = CustomerForm()
     
     context = {
         'form': form,
-        'title': 'Add New Customer',
         'submit_text': 'Create Customer'
     }
     return render(request, 'customers/customer_form.html', context)
@@ -132,7 +131,7 @@ def customer_create(request):
 @login_required
 def customer_edit(request, pk):
     """
-    Edit an existing customer
+    Edit an existing customer.
     """
     customer = get_object_or_404(Customer, pk=pk)
     
@@ -140,18 +139,32 @@ def customer_edit(request, pk):
         form = CustomerForm(request.POST, instance=customer)
         if form.is_valid():
             updated_customer = form.save()
-            messages.success(request, f"Customer '{updated_customer.get_full_name()}' updated successfully.")
-            return redirect('customers:customer_detail', pk=updated_customer.pk)
+            messages.success(request, f'Customer "{updated_customer.get_full_name()}" was updated successfully.')
+            return redirect('customers:detail', pk=updated_customer.pk)
     else:
         form = CustomerForm(instance=customer)
     
     context = {
         'form': form,
-        'title': f'Edit Customer: {customer.get_full_name()}',
-        'submit_text': 'Update Customer',
-        'customer': customer
+        'customer': customer,
+        'submit_text': 'Update Customer'
     }
     return render(request, 'customers/customer_form.html', context)
+
+@login_required
+def customer_delete(request, pk):
+    """
+    Delete a customer.
+    """
+    customer = get_object_or_404(Customer, pk=pk)
+    
+    if request.method == 'POST':
+        customer.delete()
+        messages.success(request, f'Customer "{customer.get_full_name()}" was deleted successfully.')
+        return redirect('customers:list')
+    
+    context = {'customer': customer}
+    return render(request, 'customers/customer_confirm_delete.html', context)
 
 def search_customers(request):
     """

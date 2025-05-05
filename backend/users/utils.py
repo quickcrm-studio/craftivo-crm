@@ -92,7 +92,7 @@ class FormWidgets:
         Return a styled text input widget
         """
         attrs = {
-            'class': 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-md py-3 pl-4 sm:text-sm border-gray-300 rounded-md',
+            'class': 'border-gray-300 rounded-md',
         }
         
         if placeholder:
@@ -109,7 +109,7 @@ class FormWidgets:
         Return a styled email input widget
         """
         attrs = {
-            'class': 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-md py-3 pl-4 sm:text-sm border-gray-300 rounded-md',
+            'class': 'border-gray-300 rounded-md',
         }
         
         if placeholder:
@@ -126,7 +126,7 @@ class FormWidgets:
         Return a styled password input widget
         """
         attrs = {
-            'class': 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-md py-3 pl-4 sm:text-sm border-gray-300 rounded-md',
+            'class': 'border-gray-300 rounded-md',
         }
         
         if placeholder:
@@ -143,7 +143,7 @@ class FormWidgets:
         Return a styled textarea widget
         """
         attrs = {
-            'class': 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-md py-3 pl-4 sm:text-sm border-gray-300 rounded-md',
+            'class': 'border-gray-300 rounded-md',
             'rows': rows
         }
         
@@ -161,7 +161,7 @@ class FormWidgets:
         Return a styled checkbox widget
         """
         attrs = {
-            'class': 'h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
+            'class': 'rounded border-gray-300 text-indigo-600'
         }
         
         if required:
@@ -175,7 +175,7 @@ class FormWidgets:
         Return a styled select widget
         """
         attrs = {
-            'class': 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full max-w-md py-3 pl-4 sm:text-sm border-gray-300 rounded-md'
+            'class': 'border-gray-300 rounded-md'
         }
         
         if required:
@@ -189,7 +189,7 @@ class FormWidgets:
         Return a styled checkbox select multiple widget
         """
         attrs = {
-            'class': 'h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
+            'class': 'rounded border-gray-300 text-indigo-600'
         }
         
         return forms.CheckboxSelectMultiple(attrs=attrs)

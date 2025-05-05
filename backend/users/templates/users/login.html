@@ -82,7 +82,7 @@
             <div>
                 <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Username</label>
                 <div class="mt-1">
-                    {{ form.username|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                    {{ form.username }}
                 </div>
                 {% if form.username.errors %}
                 <p class="mt-2 text-xs text-red-600">{{ form.username.errors.0 }}</p>
@@ -92,7 +92,7 @@
             <div>
                 <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700">Password</label>
                 <div class="mt-1">
-                    {{ form.password|add_class:"shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" }}
+                    {{ form.password }}
                 </div>
                 {% if form.password.errors %}
                 <p class="mt-2 text-xs text-red-600">{{ form.password.errors.0 }}</p>
@@ -101,7 +101,7 @@
             
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    {{ form.remember_me|add_class:"h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" }}
+                    {{ form.remember_me }}
                     <label for="{{ form.remember_me.id_for_label }}" class="ml-2 block text-sm text-gray-900">
                         Remember me
                     </label>

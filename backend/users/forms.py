@@ -12,50 +12,31 @@ class UserSignupForm(UserCreationForm):
     """
     Form for creating a new user account for staff members.
     """
-    email = forms.EmailField(required=True, 
-                           help_text="Required. Enter a valid email address.",
-                           widget=FormWidgets.get_email_input(placeholder="Email address", required=True))
-    
-    first_name = forms.CharField(max_length=30, required=True, 
-                               help_text="Required.",
-                               widget=FormWidgets.get_text_input(placeholder="First name", required=True))
-    
-    last_name = forms.CharField(max_length=30, required=True, 
-                              help_text="Required.",
-                              widget=FormWidgets.get_text_input(placeholder="Last name", required=True))
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+    first_name = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    role = forms.ChoiceField(
+        choices=[
+            ('Staff', 'Staff'),
+            ('Manager', 'Manager'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
-        widgets = {
-            'username': FormWidgets.get_text_input(placeholder="Username", required=True),
-        }
-        
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Style password fields
-        self.fields['password1'].widget = FormWidgets.get_password_input(placeholder="Password", required=True)
-        self.fields['password2'].widget = FormWidgets.get_password_input(placeholder="Confirm password", required=True)
-        
-        # Add role field dynamically if groups exist
-        available_groups = Group.objects.exclude(name='Administrators')
-        if available_groups.exists():
-            self.fields['role'] = forms.ModelChoiceField(
-                queryset=available_groups,
-                required=True,
-                help_text="Select your role in the organization.",
-                widget=FormWidgets.get_select(required=True)
-            )
-            
-            # Update Meta.fields to include role
-            self._meta.fields = self._meta.fields + ('role',)
-    
-    def clean_password1(self):
-        password = self.cleaned_data.get('password1')
-        return validate_password_strength(password)
+        fields = ['username', 'email', 'first_name', 'last_name', 'role', 'password1', 'password2']
     
     def save(self, commit=True):
+        """Save the user and set their role."""
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
@@ -63,11 +44,11 @@ class UserSignupForm(UserCreationForm):
         
         if commit:
             user.save()
-            # Add user to the selected role group if role field exists
-            if 'role' in self.cleaned_data and self.cleaned_data.get('role'):
-                role_group = self.cleaned_data['role']
-                user.groups.add(role_group)
-                
+            # Add user to the appropriate group based on role
+            role = self.cleaned_data['role']
+            group, created = Group.objects.get_or_create(name=role)
+            user.groups.add(group)
+        
         return user
 
 class UserLoginForm(forms.Form):

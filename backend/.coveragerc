@@ -1,0 +1,27 @@
+[run]
+source = .
+omit =
+    */venv/*
+    */migrations/*
+    */tests/*
+    */test_*.py
+    manage.py
+    wsgi.py
+    asgi.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    def __str__
+    if self.debug:
+    if settings.DEBUG
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    raise ImportError
+    except ImportError
+    def get_absolute_url
+    
+[html]
+directory = htmlcov 

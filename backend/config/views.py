@@ -5,7 +5,9 @@ from customers.models import Customer
 from orders.models import Order
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def home(request):
     """Home page view with dashboard statistics."""
     # Initialize variables

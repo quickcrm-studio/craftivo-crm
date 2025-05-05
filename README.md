@@ -6,28 +6,21 @@ A Django-based CRM system for managing handmade goods online store operations.
 
 ```
 .
-├── backend/           # Django backend application
-├── frontend/          # Next.js frontend application
-├── infrastructure/    # Docker, deployment, and infrastructure configurations
-├── docs/             # Project documentation
-└── tests/            # End-to-end and integration tests
+└── backend/           # Django backend application
 ```
 
 ## Tech Stack
 
 - Backend: Django 4.x + Django REST Framework
-- Frontend: React with Next.js
 - Database: PostgreSQL
 - Caching: Redis
 - Containerization: Docker
-- CI/CD: GitHub Actions
 
 ## Getting Started
 
 ### Prerequisites
 
 - Python 3.11+
-- Node.js 18+
 - Docker and Docker Compose
 - Git
 
@@ -36,7 +29,7 @@ A Django-based CRM system for managing handmade goods online store operations.
 1. Clone the repository:
    ```bash
    git clone [repository-url]
-   cd e-commerce-crm
+   cd craftivo-crm
    ```
 
 2. Set up the backend:
@@ -47,15 +40,20 @@ A Django-based CRM system for managing handmade goods online store operations.
    pip install -r requirements.txt
    ```
 
-3. Set up the frontend:
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-4. Start the development environment:
+3. Start the development environment with Docker:
    ```bash
    docker-compose up -d
+   ```
+
+4. Access the Django admin interface at:
+   ```
+   http://localhost:8000/admin/
+   ```
+
+5. To run tests:
+   ```bash
+   cd backend
+   python run_tests.py
    ```
 
 ## Contributing

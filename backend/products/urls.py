@@ -15,11 +15,12 @@ urlpatterns = [
     path('api/', include(router.urls)),
     
     # Web UI endpoints - Products
-    path('list/', views.product_list, name='product_list'),
-    path('create/', views.product_create, name='product_create'),
-    path('detail/<int:pk>/', views.product_detail, name='product_detail'),
-    path('update/<int:pk>/', views.product_update, name='product_update'),
-    path('delete/<int:pk>/', views.product_delete, name='product_delete'),
+    path('', views.product_list, name='list'),  # Default list view at the root
+    path('list/', views.product_list, name='list'),
+    path('create/', views.product_create, name='create'),
+    path('detail/<int:pk>/', views.product_detail, name='detail'),
+    path('update/<int:pk>/', views.product_update, name='update'),
+    path('delete/<int:pk>/', views.product_delete, name='delete'),
     
     # Web UI endpoints - Categories
     path('categories/', views.category_list, name='category_list'),
